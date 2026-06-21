@@ -1,0 +1,48 @@
+# Xcode
+#
+# gitignore contributors: remember to update Global/Xcode.gitignore, Objective-C.gitignore & Swift.gitignore
+
+## User settings
+xcuserdata/
+
+## Xcode 8 and earlier
+*.xcworkspace/xcuserdata/
+
+## Build results
+build/
+DerivedData/
+.build-dd/
+dist/*.zip
+dist/*.dmg
+
+## Built app bundles (produced locally for testing)
+*.app
+
+## Bundled offline Whisper model (large; fetch via scripts/fetch_whisper_model.sh)
+WhisperBundle/
+
+## Claude Code local workspace files
+.claude/
+
+## Internal product / design docs — our own IP, must NOT be published
+产品开发文档-*.md
+产品开发文档*.md
+*-PRD.md
+docs/internal/
+
+## Non-Apple files
+.DS_Store
+
+## Swift Package Manager
+.build/
+.swiftpm/
+
+## Other
+*.lock
+*.mode1v3
+*.mode2v3
+*.perspectivev3
+*.pbxuser
+*.xccheckout
+*.xcscmblueprint
+*~.nib
