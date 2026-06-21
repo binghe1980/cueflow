@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="assets/icon.png" alt="CueFlow" width="120" />
+<img src="assets/icon.png?v=20260622" alt="CueFlow" width="120" />
 
 # CueFlow · 随读
 
