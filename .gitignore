@@ -29,6 +29,10 @@ WhisperBundle/
 产品开发文档*.md
 *-PRD.md
 docs/internal/
+## Internal business / strategy notes — our own discussion, must NOT be published
+CueFlow-变现与发布计划-总结.md
+*-总结.md
+*变现*.md
 
 ## Non-Apple files
 .DS_Store
