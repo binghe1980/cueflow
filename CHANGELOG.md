@@ -36,7 +36,7 @@ voice-follow engine, a cue (off-script) mode, and a rebuilt script library.
 
 ### Notes
 
-- This build is **unsigned/un-notarized** (free & open-source). See the README
-  for first-launch guidance if macOS shows a security prompt.
+- This build is **signed with an Apple Developer ID and notarized by Apple**, so
+  it opens with a normal double-click (no Gatekeeper prompt).
 - Requires **macOS 14.0+**. The WhisperKit mixed-language mode is best on
   Apple Silicon.

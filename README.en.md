@@ -55,39 +55,13 @@
 2. Open the DMG and drag **CueFlow** into your **Applications** folder.
 3. Launch CueFlow from Launchpad/Applications — its icon appears in the menu bar.
 
-> 📦 The download is ~130 MB because the offline speech model is bundled, so voice-follow works **without an internet connection**.
+> 📦 The download is ~135 MB because the offline speech model is bundled, so voice-follow works **without an internet connection**.
 
-### ⚠️ First launch (unsigned app — please read)
+### ✅ First launch
 
-CueFlow is **free, open-source, and not signed/notarized with a paid Apple Developer certificate**. This does **not** affect safety or functionality, but on first launch macOS may block it with messages like:
+CueFlow is **signed with an Apple Developer ID** and **notarized by Apple**, so it **opens with a normal double-click** — no "unidentified developer" or "damaged" prompts.
 
-- *"CueFlow can't be opened because Apple cannot check it for malicious software."*
-- or *"CueFlow is damaged and can't be opened. You should move it to the Trash."*
-
-> 💡 "Damaged" here is **almost never an actual corruption** — macOS simply adds a *quarantine* flag to unsigned apps downloaded from the internet. Any one of the methods below fixes it.
-
-**Method A · Most reliable (recommended) — clear the quarantine flag**
-
-Open **Terminal**, paste, and press Return:
-
-```bash
-xattr -cr /Applications/CueFlow.app
-```
-
-Then double-click to open as usual. (If you put the app elsewhere, adjust the path.)
-
-**Method B · Right-click to open**
-
-In Finder, **right-click (or Control-click)** the CueFlow icon → **Open** → click **Open** again in the dialog.
-
-**Method C · Allow it in Settings**
-
-Double-click once (it gets blocked), then go to **System Settings → Privacy & Security**, scroll down to the CueFlow notice, and click **Open Anyway**.
-
-> 🛟 **How do I avoid macOS moving it to the Trash?**
-> If you're worried about the "damaged" block, the safest path is: after installing, **run the `xattr -cr` command from Method A *before* opening it the first time.** Clearing quarantine up front prevents the "damaged" prompt entirely.
->
-> For extra peace of mind, you can also **verify the download** (see "Verify the file" below).
+> Want to confirm the download is intact? Compare the SHA-256 in "Verify the file" below.
 
 ## ⌨️ Keyboard Shortcuts
 
@@ -129,11 +103,17 @@ cd cueflow
 open notchprompt.xcodeproj
 ```
 
-Build an unsigned DMG from the command line (same as the release):
+Build a local DMG from the command line (ad-hoc signed, for your own testing):
 
 ```bash
 ./scripts/build_release_zip.sh v1.0.0
 # Output: dist/CueFlow-v1.0.0-macos.dmg
+```
+
+The official release is built with Developer ID signing + Apple notarization (requires a certificate and notary credentials):
+
+```bash
+./scripts/sign_notarize_release.sh v1.0.0
 ```
 
 ## ✅ Verify the file (optional)
