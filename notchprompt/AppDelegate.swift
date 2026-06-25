@@ -8,6 +8,7 @@
 import AppKit
 import Combine
 import SwiftUI
+import Sparkle
 
 extension Notification.Name {
     static let cueflowOpenScriptEditor = Notification.Name("CueflowOpenScriptEditor")
@@ -18,6 +19,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, 
     private let shortcutModifiers: NSEvent.ModifierFlags = [.command, .option]
 
     private let model = PrompterModel.shared
+
+    /// Sparkle auto-updater. `startingUpdater: true` begins scheduled background
+    /// checks against the appcast feed (SUFeedURL in Info.plist); the menu item
+    /// triggers a manual, user-initiated check.
+    private lazy var updaterController = SPUStandardUpdaterController(
+        startingUpdater: true, updaterDelegate: nil, userDriverDelegate: nil
+    )
 
     private var statusItem: NSStatusItem?
     private var overlayController: OverlayWindowController?
@@ -68,6 +76,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, 
         hotkeyManager.registerAll()
         setupStatusBar()
         installEditKeyHandler()
+        _ = updaterController  // instantiate to start Sparkle's scheduled update checks
 
         languageObserver = NotificationCenter.default.addObserver(
             forName: .appLanguageDidChange, object: nil, queue: .main
@@ -363,6 +372,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, 
         open.target = self
         menu.addItem(open)
 
+        let checkUpdates = NSMenuItem(title: L(.menuCheckUpdates), action: #selector(checkForUpdates(_:)), keyEquivalent: "")
+        checkUpdates.target = self
+        menu.addItem(checkUpdates)
+
         menu.addItem(.separator())
 
         let quit = NSMenuItem(title: L(.menuQuit), action: #selector(quitApp), keyEquivalent: "q")
@@ -500,6 +513,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, 
 
     @objc private func quitApp() {
         NSApp.terminate(nil)
+    }
+
+    /// Manual "Check for Updates…" — shows Sparkle's UI (up-to-date / new version).
+    @objc private func checkForUpdates(_ sender: Any?) {
+        updaterController.checkForUpdates(sender)
     }
 
     /// Space toggles play/pause, but only when it's both useful and safe:

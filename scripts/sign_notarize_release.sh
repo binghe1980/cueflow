@@ -58,17 +58,40 @@ xcodebuild \
 
 [[ -d "$APP_PATH" ]] || { echo "Expected app bundle not found at: $APP_PATH" >&2; exit 1; }
 
-# Sign nested Mach-O binaries inside-out first (none today, but future-proof),
-# then the app bundle itself with hardened runtime + entitlements + timestamp.
-# The main executable under Contents/MacOS is skipped here; it gets signed (with
-# entitlements) by the bundle signing below.
-echo "==> Signing nested Mach-O binaries (if any)"
+# Sparkle ships nested helpers (XPC services, Autoupdate, Updater.app) that must
+# be re-signed inside-out with your Developer ID + hardened runtime before the
+# framework and the app, or notarization fails. Guarded so the script still works
+# if Sparkle is absent or its layout changes.
+SPARKLE_FW="$APP_PATH/Contents/Frameworks/Sparkle.framework"
+if [[ -d "$SPARKLE_FW" ]]; then
+  echo "==> Signing Sparkle nested components (inside-out)"
+  SPARKLE_V="$SPARKLE_FW/Versions/B"
+  for item in \
+    "$SPARKLE_V/XPCServices/Downloader.xpc" \
+    "$SPARKLE_V/XPCServices/Installer.xpc" \
+    "$SPARKLE_V/Autoupdate" \
+    "$SPARKLE_V/Updater.app"; do
+    if [[ -e "$item" ]]; then
+      echo "    - ${item#"$APP_PATH"/}"
+      codesign --force --options runtime --timestamp --sign "$SIGN_IDENTITY" "$item"
+    fi
+  done
+  echo "    - Sparkle.framework"
+  codesign --force --options runtime --timestamp --sign "$SIGN_IDENTITY" "$SPARKLE_FW"
+fi
+
+# Sign any other nested Mach-O (future frameworks/dylibs), skipping the main
+# executable (signed with entitlements by the bundle signing below) and Sparkle
+# (already handled above).
+echo "==> Signing other nested Mach-O binaries (if any)"
 while IFS= read -r -d '' f; do
   if file "$f" | grep -q "Mach-O"; then
-    echo "    - $f"
+    echo "    - ${f#"$APP_PATH"/}"
     codesign --force --options runtime --timestamp --sign "$SIGN_IDENTITY" "$f"
   fi
-done < <(find "$APP_PATH/Contents" -type f ! -path "$APP_PATH/Contents/MacOS/*" -print0)
+done < <(find "$APP_PATH/Contents" -type f \
+  ! -path "$APP_PATH/Contents/MacOS/*" \
+  ! -path "$SPARKLE_FW/*" -print0)
 
 echo "==> Signing app bundle"
 codesign --force --options runtime --timestamp \

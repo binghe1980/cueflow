@@ -35,7 +35,7 @@ enum LK: String {
     // Status-bar menu
     case menuStart, menuPause, menuResetScroll, menuJumpBack
     case menuPrivacyMode, menuShowOverlay, menuIncreaseSpeed, menuDecreaseSpeed
-    case menuToggleWindowMode, menuScriptEditor, menuSettings, menuQuit
+    case menuToggleWindowMode, menuScriptEditor, menuSettings, menuCheckUpdates, menuQuit
     case menuShortcutUnavailableOne, menuShortcutsUnavailableN, menuInUseByOther
 
     // Edit menu
@@ -163,6 +163,7 @@ extension LocalizationManager {
         .menuToggleWindowMode: [.zhHans: "切换窗口形态（刘海/独立）", .en: "Toggle Window Mode"],
         .menuScriptEditor: [.zhHans: "脚本编辑器…", .en: "Script Editor…"],
         .menuSettings: [.zhHans: "设置…", .en: "Settings…"],
+        .menuCheckUpdates: [.zhHans: "检查更新…", .en: "Check for Updates…"],
         .menuQuit: [.zhHans: "退出 随读", .en: "Quit Cueflow"],
         .menuShortcutUnavailableOne: [.zhHans: "快捷键不可用：%@（被其他应用占用）", .en: "Shortcut unavailable: %@ (in use by another app)"],
         .menuShortcutsUnavailableN: [.zhHans: "有快捷键不可用（%d 个）", .en: "Shortcuts unavailable (%d)"],

@@ -12,8 +12,7 @@ xcuserdata/
 build/
 DerivedData/
 .build-dd/
-dist/*.zip
-dist/*.dmg
+dist/
 
 ## Built app bundles (produced locally for testing)
 *.app

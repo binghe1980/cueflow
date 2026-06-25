@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		B05030010000000000000003 /* WhisperKit in Frameworks */ = {isa = PBXBuildFile; productRef = B05030010000000000000002 /* WhisperKit */; };
+		B05030010000000000000013 /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = B05030010000000000000012 /* Sparkle */; };
 		B05030010000000000000005 /* WhisperBundle in Resources */ = {isa = PBXBuildFile; fileRef = B05030010000000000000004 /* WhisperBundle */; };
 /* End PBXBuildFile section */
 
@@ -30,6 +31,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B05030010000000000000003 /* WhisperKit in Frameworks */,
+				B05030010000000000000013 /* Sparkle in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -74,6 +76,7 @@
 			name = notchprompt;
 			packageProductDependencies = (
 				B05030010000000000000002 /* WhisperKit */,
+				B05030010000000000000012 /* Sparkle */,
 			);
 			productName = notchprompt;
 			productReference = B0503AFB2F39940800CD83D8 /* notchprompt.app */;
@@ -106,6 +109,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				B05030010000000000000001 /* XCRemoteSwiftPackageReference "WhisperKit" */,
+				B05030010000000000000011 /* XCRemoteSwiftPackageReference "Sparkle" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = B0503AFC2F39940800CD83D8 /* Products */;
@@ -280,6 +284,7 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readwrite;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Config/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = CueFlow;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "CueFlow (随读). MIT License. Based on NotchPrompt (MIT).";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "CueFlow 用麦克风识别你的朗读来同步滚动提词。本机模型可用时全程在设备上处理；若系统不支持所选语言的本机识别，macOS 可能改用苹果云端识别（界面会标注“云端”）。CueFlow 自身不会上传或存储你的音频。 / CueFlow uses the microphone to follow your reading. Audio is processed on-device when supported; if your Mac lacks on-device recognition for the selected language, macOS may fall back to Apple's speech servers (shown as “cloud” in the UI). CueFlow itself never uploads or stores your audio.";
@@ -316,6 +321,7 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readwrite;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Config/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = CueFlow;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "CueFlow (随读). MIT License. Based on NotchPrompt (MIT).";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "CueFlow 用麦克风识别你的朗读来同步滚动提词。本机模型可用时全程在设备上处理；若系统不支持所选语言的本机识别，macOS 可能改用苹果云端识别（界面会标注“云端”）。CueFlow 自身不会上传或存储你的音频。 / CueFlow uses the microphone to follow your reading. Audio is processed on-device when supported; if your Mac lacks on-device recognition for the selected language, macOS may fall back to Apple's speech servers (shown as “cloud” in the UI). CueFlow itself never uploads or stores your audio.";
@@ -367,6 +373,14 @@
 				version = 0.9.4;
 			};
 		};
+		B05030010000000000000011 /* XCRemoteSwiftPackageReference "Sparkle" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/sparkle-project/Sparkle";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.5.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -374,6 +388,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = B05030010000000000000001 /* XCRemoteSwiftPackageReference "WhisperKit" */;
 			productName = WhisperKit;
+		};
+		B05030010000000000000012 /* Sparkle */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B05030010000000000000011 /* XCRemoteSwiftPackageReference "Sparkle" */;
+			productName = Sparkle;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- Sparkle auto-update. Other Info.plist keys are merged in by
+	     GENERATE_INFOPLIST_FILE / INFOPLIST_KEY_* build settings. -->
+	<key>SUFeedURL</key>
+	<string>https://cueflow-updates-cf.oss-cn-hangzhou.aliyuncs.com/appcast.xml</string>
+	<key>SUPublicEDKey</key>
+	<string>GznoouEyIOY2dqeo2ZBGBllx8vAgOVTa95unNDo21aE=</string>
+	<key>SUEnableAutomaticChecks</key>
+	<true/>
+</dict>
+</plist>
