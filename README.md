@@ -7,7 +7,7 @@
 **贴着刘海的 Mac 提词器 —— 会"听"你朗读、自动跟随滚动**
 
 [![License](https://img.shields.io/badge/license-MIT-22c55e.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-v1.0.0-3b82f6.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-v1.0.1-3b82f6.svg)](CHANGELOG.md)
 [![Platform](https://img.shields.io/badge/macOS-14%2B-111827.svg?logo=apple&logoColor=white)](#系统要求)
 [![Chip](https://img.shields.io/badge/Apple%20Silicon%20%26%20Intel-supported-f59e0b.svg)](#系统要求)
 [![Website](https://img.shields.io/badge/官方网站-cueflow.flowlab.im-16a34a.svg)](https://cueflow.flowlab.im/)
@@ -52,7 +52,7 @@
 
 ## 📥 下载与安装
 
-1. 打开 [Releases 页面](https://github.com/binghe1980/cueflow/releases)，下载最新的 `CueFlow-v1.0.0-macos.dmg`。
+1. 打开 [Releases 页面](https://github.com/binghe1980/cueflow/releases)，下载最新的 `CueFlow-v1.0.1-macos.dmg`。
 2. 双击打开 DMG，把 **CueFlow** 拖到 **应用程序（Applications）** 文件夹。
 3. 从「启动台 / 应用程序」打开 CueFlow，菜单栏会出现它的图标。
 
@@ -107,14 +107,14 @@ open notchprompt.xcodeproj
 命令行打包本地 DMG（ad-hoc 签名，供本机自测）：
 
 ```bash
-./scripts/build_release_zip.sh v1.0.0
-# 产物：dist/CueFlow-v1.0.0-macos.dmg
+./scripts/build_release_zip.sh v1.0.1
+# 产物：dist/CueFlow-v1.0.1-macos.dmg
 ```
 
 正式发行版用 Developer ID 签名 + Apple 公证打包（需配好证书与公证凭据）：
 
 ```bash
-./scripts/sign_notarize_release.sh v1.0.0
+./scripts/sign_notarize_release.sh v1.0.1
 ```
 
 ## ✅ 校验文件（可选）
@@ -122,7 +122,7 @@ open notchprompt.xcodeproj
 下载后可核对 SHA-256，确认文件完整、未被篡改：
 
 ```bash
-shasum -a 256 ~/Downloads/CueFlow-v1.0.0-macos.dmg
+shasum -a 256 ~/Downloads/CueFlow-v1.0.1-macos.dmg
 ```
 
 > 每个 Release 页面会附上官方 SHA-256 值，比对一致即可放心安装。
@@ -144,5 +144,5 @@ CueFlow 基于以下开源项目构建，谨致谢意：
 ---
 
 <div align="center">
-<sub>CueFlow · 随读 — v1.0.0 首个公开版本 · Made with ❤️ for 中文创作者</sub>
+<sub>CueFlow · 随读 — v1.0.1 · Made with ❤️ for 中文创作者</sub>
 </div>

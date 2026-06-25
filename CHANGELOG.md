@@ -3,6 +3,18 @@
 All notable changes to CueFlow (随读) are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## v1.0.1 — 2026-06-25
+
+✨ **Adds in-app auto-update.**
+
+- **In-app updates via Sparkle** — CueFlow now checks for new versions and can
+  install them in place. A **"Check for Updates…"** item is in the menu-bar menu,
+  and scheduled background checks are on by default. Updates are EdDSA-signed and
+  served over HTTPS.
+- Signed with an Apple Developer ID and notarized by Apple (same as v1.0.0).
+- No feature changes otherwise — this is the baseline that enables automatic
+  updates going forward (versions released after it will update automatically).
+
 ## v1.0.0 — 2026-06-21
 
 🎉 **First public release of CueFlow (随读).**

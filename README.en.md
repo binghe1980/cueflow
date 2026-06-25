@@ -7,7 +7,7 @@
 **A Mac teleprompter that hugs the notch — and *listens* as you read, scrolling to follow you**
 
 [![License](https://img.shields.io/badge/license-MIT-22c55e.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-v1.0.0-3b82f6.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-v1.0.1-3b82f6.svg)](CHANGELOG.md)
 [![Platform](https://img.shields.io/badge/macOS-14%2B-111827.svg?logo=apple&logoColor=white)](#requirements)
 [![Chip](https://img.shields.io/badge/Apple%20Silicon%20%26%20Intel-supported-f59e0b.svg)](#requirements)
 [![Website](https://img.shields.io/badge/Website-cueflow.flowlab.im-16a34a.svg)](https://cueflow.flowlab.im/)
@@ -52,7 +52,7 @@
 
 ## 📥 Download & Install
 
-1. Open the [Releases page](https://github.com/binghe1980/cueflow/releases) and download the latest `CueFlow-v1.0.0-macos.dmg`.
+1. Open the [Releases page](https://github.com/binghe1980/cueflow/releases) and download the latest `CueFlow-v1.0.1-macos.dmg`.
 2. Open the DMG and drag **CueFlow** into your **Applications** folder.
 3. Launch CueFlow from Launchpad/Applications — its icon appears in the menu bar.
 
@@ -107,14 +107,14 @@ open notchprompt.xcodeproj
 Build a local DMG from the command line (ad-hoc signed, for your own testing):
 
 ```bash
-./scripts/build_release_zip.sh v1.0.0
-# Output: dist/CueFlow-v1.0.0-macos.dmg
+./scripts/build_release_zip.sh v1.0.1
+# Output: dist/CueFlow-v1.0.1-macos.dmg
 ```
 
 The official release is built with Developer ID signing + Apple notarization (requires a certificate and notary credentials):
 
 ```bash
-./scripts/sign_notarize_release.sh v1.0.0
+./scripts/sign_notarize_release.sh v1.0.1
 ```
 
 ## ✅ Verify the file (optional)
@@ -122,7 +122,7 @@ The official release is built with Developer ID signing + Apple notarization (re
 After downloading, check the SHA-256 to confirm the file is intact and untampered:
 
 ```bash
-shasum -a 256 ~/Downloads/CueFlow-v1.0.0-macos.dmg
+shasum -a 256 ~/Downloads/CueFlow-v1.0.1-macos.dmg
 ```
 
 > Each Release lists the official SHA-256 — if it matches, you're good to install.
@@ -144,5 +144,5 @@ This project is released under the **MIT License** — see [LICENSE](LICENSE). Y
 ---
 
 <div align="center">
-<sub>CueFlow · 随读 — v1.0.0, the first public release · Made with ❤️ for creators</sub>
+<sub>CueFlow · 随读 — v1.0.1 · Made with ❤️ for creators</sub>
 </div>
