@@ -10,8 +10,9 @@
 [![Version](https://img.shields.io/badge/version-v1.0.0-3b82f6.svg)](CHANGELOG.md)
 [![Platform](https://img.shields.io/badge/macOS-14%2B-111827.svg?logo=apple&logoColor=white)](#requirements)
 [![Chip](https://img.shields.io/badge/Apple%20Silicon%20%26%20Intel-supported-f59e0b.svg)](#requirements)
+[![Website](https://img.shields.io/badge/Website-cueflow.flowlab.im-16a34a.svg)](https://cueflow.flowlab.im/)
 
-[简体中文](README.md) &nbsp;·&nbsp; **🌏 English**
+**🌐 Official site · [cueflow.flowlab.im](https://cueflow.flowlab.im/)** &nbsp;|&nbsp; [简体中文](README.md) &nbsp;·&nbsp; **🌏 English**
 
 </div>
 
