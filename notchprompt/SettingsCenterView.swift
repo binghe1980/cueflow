@@ -257,6 +257,11 @@ struct PromptingSettingsView: View {
                 }
                 Toggle(lm.l(.toggleCueTotalTimer), isOn: $model.showCueTotalTimer)
             }
+
+            SCCard(title: lm.l(.secGesture)) {
+                Toggle(lm.l(.toggleGestureControl), isOn: $model.gestureControlEnabled)
+                Text(lm.l(.gestureHint)).font(.footnote).foregroundStyle(.secondary)
+            }
         }
     }
 

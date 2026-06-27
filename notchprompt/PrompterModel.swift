@@ -156,6 +156,9 @@ Tip: Use the menu bar icon to start/pause or reset the scroll.
     @Published var statsEnabled: Bool = true
     // F6 每次提词结束弹出会话小结卡（持久化，默认开）。
     @Published var showSessionSummary: Bool = true
+    // F7 触控板手势翻页总开关（持久化，默认开）。关闭后横向手势与随讲纵向翻弹药停用；
+    // 普通模式的纵向手动滚动是既有基础交互，始终保留。
+    @Published var gestureControlEnabled: Bool = true
     /// 0 means "auto" (prefer built-in display)
     @Published var selectedScreenID: CGDirectDisplayID = 0
     // Fraction of the viewport height to fade at top and bottom.
@@ -209,6 +212,7 @@ Tip: Use the menu bar icon to start/pause or reset the scroll.
         static let timerTargetSeconds = "timerTargetSeconds"
         static let statsEnabled = "statsEnabled"
         static let showSessionSummary = "showSessionSummary"
+        static let gestureControlEnabled = "gestureControlEnabled"
     }
 
     private init() {
@@ -411,6 +415,34 @@ Tip: Use the menu bar icon to start/pause or reset the scroll.
         shouldUseCountdownOnNextStart = false
         manualScrollDeltaPoints = deltaPoints
         manualScrollToken = UUID()
+    }
+
+    // MARK: - F7 手势分派
+
+    enum GestureDirection { case left, right }
+
+    /// 横向双指滑（离散，一次一步）。普通模式=调速，随讲模式=跳段。
+    /// 受 `gestureControlEnabled` 总开关控制。
+    func handleHorizontalGesture(_ direction: GestureDirection) {
+        guard gestureControlEnabled else { return }
+        if readingMode == .cue {
+            switch direction {
+            case .right: cueNextSection()
+            case .left:  cuePrevSection()
+            }
+        } else {
+            switch direction {
+            case .right: adjustSpeed(delta: Self.speedStep)
+            case .left:  adjustSpeed(delta: -Self.speedStep)
+            }
+        }
+    }
+
+    /// 纵向离散一步。随讲模式=翻看本点弹药。普通模式的纵向走连续 `handleManualScroll`，
+    /// 不经过这里。受 `gestureControlEnabled` 控制。
+    func handleVerticalDiscrete(_ delta: Int) {
+        guard gestureControlEnabled, readingMode == .cue else { return }
+        cueScrollMaterials(delta)
     }
 
     func toggleRunning() {
@@ -634,6 +666,7 @@ Tip: Use the menu bar icon to start/pause or reset the scroll.
         timerTargetSeconds = Int(clamp(Double(defaults.object(forKey: DefaultsKey.timerTargetSeconds) as? Int ?? timerTargetSeconds), lower: 5, upper: 3600))
         statsEnabled = defaults.object(forKey: DefaultsKey.statsEnabled) as? Bool ?? statsEnabled
         showSessionSummary = defaults.object(forKey: DefaultsKey.showSessionSummary) as? Bool ?? showSessionSummary
+        gestureControlEnabled = defaults.object(forKey: DefaultsKey.gestureControlEnabled) as? Bool ?? gestureControlEnabled
     }
 
     func saveToDefaults() {
@@ -672,6 +705,7 @@ Tip: Use the menu bar icon to start/pause or reset the scroll.
         defaults.set(timerTargetSeconds, forKey: DefaultsKey.timerTargetSeconds)
         defaults.set(statsEnabled, forKey: DefaultsKey.statsEnabled)
         defaults.set(showSessionSummary, forKey: DefaultsKey.showSessionSummary)
+        defaults.set(gestureControlEnabled, forKey: DefaultsKey.gestureControlEnabled)
     }
 
     private func beginCountdown(seconds: Int) {

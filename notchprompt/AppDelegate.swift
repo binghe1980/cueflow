@@ -319,7 +319,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, 
             model.$timerMode.map { _ in () }.eraseToAnyPublisher(),
             model.$timerTargetSeconds.map { _ in () }.eraseToAnyPublisher(),
             model.$statsEnabled.map { _ in () }.eraseToAnyPublisher(),
-            model.$showSessionSummary.map { _ in () }.eraseToAnyPublisher()
+            model.$showSessionSummary.map { _ in () }.eraseToAnyPublisher(),
+            model.$gestureControlEnabled.map { _ in () }.eraseToAnyPublisher()
         ]
         Publishers.MergeMany(saveTriggers)
             .debounce(for: .milliseconds(250), scheduler: RunLoop.main)

@@ -123,6 +123,9 @@ enum LK: String {
     case statsTotals, statsTotalSessions, statsTotalTime, statsRecent, statsScript
     case statsEmpty, statsClear, statsClearConfirmTitle, statsClearConfirmMsg, statsCancel
     case toggleStatsEnabled, toggleShowSummary, summaryTitle, summaryDismiss
+
+    // F7 手势翻页
+    case secGesture, toggleGestureControl, gestureHint
 }
 
 @MainActor
@@ -470,5 +473,13 @@ extension LocalizationManager {
         .toggleShowSummary: [.zhHans: "结束后显示本次小结", .en: "Show session summary when finished"],
         .summaryTitle: [.zhHans: "本次小结", .en: "Session summary"],
         .summaryDismiss: [.zhHans: "好", .en: "OK"],
+
+        // MARK: F7 手势翻页
+        .secGesture: [.zhHans: "手势", .en: "Gestures"],
+        .toggleGestureControl: [.zhHans: "触控板手势翻页", .en: "Trackpad gesture control"],
+        .gestureHint: [
+            .zhHans: "鼠标悬在提词浮层上：普通模式横滑调速、纵滑滚动；随讲模式横滑跳段、纵滑翻看素材。",
+            .en: "Hover the overlay: in normal mode swipe sideways to change speed, vertically to scroll; in cue mode swipe sideways to change point, vertically to browse materials."
+        ],
     ]
 }

@@ -137,15 +137,12 @@ struct OverlayView: View {
                     FollowingPrompterView(vf: vf, fontSize: CGFloat(model.fontSize), anchorFraction: 0.20)
                 } else if model.readingMode == .cue {
                     CueCardView(model: model, fontSize: CGFloat(model.fontSize))
+                        .overlay { GestureCaptureLayer(model: model) }
                 } else if model.cueScript.hasStructure && !model.cueScript.hasSpoken {
                     CueEnterHintView()
                 } else {
                     PrompterScroller(model: model, fontSize: CGFloat(model.fontSize))
-                        .overlay {
-                            TrackpadScrollCaptureView { delta in
-                                model.handleManualScroll(deltaPoints: delta)
-                            }
-                        }
+                        .overlay { GestureCaptureLayer(model: model) }
                 }
             }
             .padding(.horizontal, 18)
@@ -351,6 +348,7 @@ struct FloatingView: View {
                         .padding(.bottom, 16)
                         .padding(.horizontal, 18)
                         .clipShape(RoundedRectangle(cornerRadius: corner, style: .continuous))
+                        .overlay { GestureCaptureLayer(model: model) }
                 } else if model.cueScript.hasStructure && !model.cueScript.hasSpoken {
                     CueEnterHintView()
                         .padding(.top, 44)
@@ -362,11 +360,7 @@ struct FloatingView: View {
                         .padding(.top, 44)
                         .padding(.bottom, 16)
                         .clipShape(RoundedRectangle(cornerRadius: corner, style: .continuous))
-                        .overlay {
-                            TrackpadScrollCaptureView { delta in
-                                model.handleManualScroll(deltaPoints: delta)
-                            }
-                        }
+                        .overlay { GestureCaptureLayer(model: model) }
                 }
 
                 if !model.isCountingDown {
@@ -550,40 +544,78 @@ struct VisualEffectView: NSViewRepresentable {
     }
 }
 
-struct TrackpadScrollCaptureView: NSViewRepresentable {
-    let onScroll: (CGFloat) -> Void
+/// Transparent layer that turns trackpad scrolls over the overlay into prompter
+/// actions: continuous vertical = manual scroll (normal mode); horizontal step =
+/// speed (normal) / jump point (cue); vertical step = browse materials (cue).
+/// Discrete steps fire a haptic (no sound). F7.
+struct GestureCaptureLayer: View {
+    @ObservedObject var model: PrompterModel
 
-    func makeCoordinator() -> Coordinator {
-        Coordinator(onScroll: onScroll)
+    var body: some View {
+        TrackpadScrollCaptureView(
+            onContinuousVertical: { delta in
+                // Cue mode uses discrete vertical steps instead of free scrolling.
+                if model.readingMode != .cue {
+                    model.handleManualScroll(deltaPoints: delta)
+                }
+            },
+            onHorizontalStep: { dir in
+                guard model.gestureControlEnabled else { return }
+                model.handleHorizontalGesture(dir)
+                Self.haptic()
+            },
+            onVerticalStep: { step in
+                guard model.gestureControlEnabled, model.readingMode == .cue else { return }
+                model.handleVerticalDiscrete(step)
+                Self.haptic()
+            }
+        )
     }
+
+    private static func haptic() {
+        NSHapticFeedbackManager.defaultPerformer.perform(.alignment, performanceTime: .now)
+    }
+}
+
+/// Captures two-finger trackpad scrolling over the overlay and reports three
+/// things: continuous vertical delta (for manual scrolling), and debounced
+/// discrete horizontal / vertical "steps" (F7 gesture paging — one action per
+/// swipe). The owner decides what each means for the current mode.
+struct TrackpadScrollCaptureView: NSViewRepresentable {
+    var onContinuousVertical: (CGFloat) -> Void
+    var onHorizontalStep: (PrompterModel.GestureDirection) -> Void
+    var onVerticalStep: (Int) -> Void
 
     func makeNSView(context: Context) -> ScrollCaptureNSView {
         let view = ScrollCaptureNSView()
-        view.onScroll = context.coordinator.handleScroll
+        view.onContinuousVertical = onContinuousVertical
+        view.onHorizontalStep = onHorizontalStep
+        view.onVerticalStep = onVerticalStep
         return view
     }
 
     func updateNSView(_ nsView: ScrollCaptureNSView, context: Context) {
-        nsView.onScroll = context.coordinator.handleScroll
-    }
-
-    final class Coordinator {
-        let onScroll: (CGFloat) -> Void
-
-        init(onScroll: @escaping (CGFloat) -> Void) {
-            self.onScroll = onScroll
-        }
-
-        func handleScroll(_ event: NSEvent) {
-            let rawDelta = event.hasPreciseScrollingDeltas ? event.scrollingDeltaY : event.deltaY * 10
-            let semanticDelta = event.isDirectionInvertedFromDevice ? rawDelta : -rawDelta
-            onScroll(semanticDelta)
-        }
+        nsView.onContinuousVertical = onContinuousVertical
+        nsView.onHorizontalStep = onHorizontalStep
+        nsView.onVerticalStep = onVerticalStep
     }
 }
 
 final class ScrollCaptureNSView: NSView {
-    var onScroll: ((NSEvent) -> Void)?
+    var onContinuousVertical: ((CGFloat) -> Void)?
+    var onHorizontalStep: ((PrompterModel.GestureDirection) -> Void)?
+    var onVerticalStep: ((Int) -> Void)?
+
+    private enum Axis { case undetermined, horizontal, vertical }
+
+    // Per-gesture state for axis-locking + discrete step detection.
+    private var accX: CGFloat = 0
+    private var accY: CGFloat = 0
+    private var axis: Axis = .undetermined
+    private var firedDiscrete = false
+    private var lastEventTime: TimeInterval = 0
+    private let axisDecision: CGFloat = 8      // points before we commit to an axis
+    private let stepThreshold: CGFloat = 40    // points of travel before one step fires
 
     override init(frame frameRect: NSRect) {
         super.init(frame: frameRect)
@@ -599,6 +631,46 @@ final class ScrollCaptureNSView: NSView {
     override func acceptsFirstMouse(for event: NSEvent?) -> Bool { true }
 
     override func scrollWheel(with event: NSEvent) {
-        onScroll?(event)
+        let rawX = event.hasPreciseScrollingDeltas ? event.scrollingDeltaX : event.deltaX * 10
+        let rawY = event.hasPreciseScrollingDeltas ? event.scrollingDeltaY : event.deltaY * 10
+
+        // New gesture window: on .began or after a brief idle gap.
+        let now = event.timestamp
+        if event.phase.contains(.began) || (now - lastEventTime) > 0.15 {
+            accX = 0; accY = 0; axis = .undetermined; firedDiscrete = false
+        }
+        lastEventTime = now
+        accX += rawX
+        accY += rawY
+
+        // Commit to a dominant axis early, then stick with it for this gesture.
+        if axis == .undetermined, max(abs(accX), abs(accY)) >= axisDecision {
+            axis = abs(accX) > abs(accY) ? .horizontal : .vertical
+        }
+
+        // Continuous manual scroll only for vertical gestures — a horizontal
+        // (speed) swipe must NOT touch the scroll/run state (F7 fix).
+        if axis == .vertical {
+            let semanticY = event.isDirectionInvertedFromDevice ? rawY : -rawY
+            onContinuousVertical?(semanticY)
+        }
+
+        if !firedDiscrete {
+            if axis == .horizontal && abs(accX) >= stepThreshold {
+                let semanticX = event.isDirectionInvertedFromDevice ? accX : -accX
+                // swipe right → .right (next / speed up). Flip if it feels reversed.
+                onHorizontalStep?(semanticX > 0 ? .right : .left)
+                firedDiscrete = true
+            } else if axis == .vertical && abs(accY) >= stepThreshold {
+                let semanticY = event.isDirectionInvertedFromDevice ? accY : -accY
+                // swipe up → next material (+1). Flip if it feels reversed.
+                onVerticalStep?(semanticY < 0 ? 1 : -1)
+                firedDiscrete = true
+            }
+        }
+
+        if event.phase.contains(.ended) || event.phase.contains(.cancelled) {
+            accX = 0; accY = 0; axis = .undetermined; firedDiscrete = false
+        }
     }
 }
