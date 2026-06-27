@@ -101,8 +101,9 @@ struct TimerBadge: View {
         .foregroundStyle(reached ? Color.white : Color.white.opacity(0.92))
         .padding(.horizontal, 9)
         .padding(.vertical, 4)
-        .background((reached ? Color.red.opacity(0.85) : Color.black.opacity(0.62)), in: Capsule())
-        .overlay(Capsule().stroke(Color.white.opacity(0.14), lineWidth: 1))
+        // Keep the "time's up" red translucent so scrolling text stays visible.
+        .background((reached ? Color.red.opacity(0.42) : Color.black.opacity(0.62)), in: Capsule())
+        .overlay(Capsule().stroke(Color.white.opacity(reached ? 0.3 : 0.14), lineWidth: 1))
         .onChange(of: timer.elapsed) { _, _ in
             if isTargetReached {
                 if !firedTargetHaptic {

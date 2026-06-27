@@ -45,6 +45,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, 
     private var privacyModeItem: NSMenuItem?
     private var windowModeItem: NSMenuItem?
     private var cueModeItem: NSMenuItem?
+    private var miniPrompterItem: NSMenuItem?
     private weak var scriptsSubmenu: NSMenu?
     private var speedUpItem: NSMenuItem?
     private var speedDownItem: NSMenuItem?
@@ -183,7 +184,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, 
                 // script) stops voice-follow so the mic doesn't keep running.
                 if mode == .cue { VoiceFollowController.shared.stop() }
                 self?.overlayController?.reposition()
-                self?.hotkeyManager.setCueNavigationActive(mode == .cue)
+                self?.hotkeyManager.setCueNavigationActive(mode == .cue && (self?.model.handsFreeKeysEnabled ?? false))
                 self?.updateSpacePauseKey()
             }
             .store(in: &cancellables)
@@ -193,7 +194,19 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, 
             .removeDuplicates()
             .receive(on: RunLoop.main)
             .sink { [weak self] running in
-                self?.hotkeyManager.setSpeedNavigationActive(running)
+                self?.hotkeyManager.setSpeedNavigationActive(running && (self?.model.handsFreeKeysEnabled ?? false))
+            }
+            .store(in: &cancellables)
+
+        // Re-apply all bare-key captures when the hands-free master toggle flips.
+        model.$handsFreeKeysEnabled
+            .removeDuplicates()
+            .receive(on: RunLoop.main)
+            .sink { [weak self] enabled in
+                guard let self else { return }
+                self.hotkeyManager.setSpeedNavigationActive(self.model.isRunning && enabled)
+                self.hotkeyManager.setCueNavigationActive(self.model.readingMode == .cue && enabled)
+                self.updateSpacePauseKey()
             }
             .store(in: &cancellables)
 
@@ -252,6 +265,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, 
             .merge(with: NotificationCenter.default.publisher(for: NSApplication.didResignActiveNotification))
             .receive(on: RunLoop.main)
             .sink { [weak self] _ in self?.updateSpacePauseKey() }
+            .store(in: &cancellables)
+
+        // F8 迷你提词切换时重新定位/缩放留海。
+        model.$miniPrompterEnabled
+            .removeDuplicates()
+            .receive(on: RunLoop.main)
+            .sink { [weak self] _ in self?.overlayController?.reposition() }
             .store(in: &cancellables)
 
         // Live-resize the notch as the 随讲 height setting is dragged.
@@ -320,7 +340,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, 
             model.$timerTargetSeconds.map { _ in () }.eraseToAnyPublisher(),
             model.$statsEnabled.map { _ in () }.eraseToAnyPublisher(),
             model.$showSessionSummary.map { _ in () }.eraseToAnyPublisher(),
-            model.$gestureControlEnabled.map { _ in () }.eraseToAnyPublisher()
+            model.$gestureControlEnabled.map { _ in () }.eraseToAnyPublisher(),
+            model.$miniPrompterEnabled.map { _ in () }.eraseToAnyPublisher(),
+            model.$handsFreeKeysEnabled.map { _ in () }.eraseToAnyPublisher()
         ]
         Publishers.MergeMany(saveTriggers)
             .debounce(for: .milliseconds(250), scheduler: RunLoop.main)
@@ -393,6 +415,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, 
         cueMode.keyEquivalentModifierMask = shortcutModifiers
         menu.addItem(cueMode)
         cueModeItem = cueMode
+
+        let miniMode = NSMenuItem(title: L(.menuMiniPrompter), action: #selector(toggleMiniPrompter), keyEquivalent: "")
+        miniMode.target = self
+        menu.addItem(miniMode)
+        miniPrompterItem = miniMode
 
         let speedUp = NSMenuItem(title: L(.menuIncreaseSpeed), action: #selector(increaseSpeed), keyEquivalent: ShortcutCommand.speedUp.keyEquivalent)
         speedUp.target = self
@@ -508,6 +535,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, 
         model.displayMode = (model.displayMode == .notch) ? .floating : .notch
     }
 
+    @objc private func toggleMiniPrompter() {
+        model.miniPrompterEnabled.toggle()
+    }
+
     @objc private func toggleCueMode() {
         // Entering 随讲 stops voice-follow so the mic doesn't keep running.
         if model.readingMode != .cue { VoiceFollowController.shared.stop() }
@@ -597,7 +628,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, 
     /// voice-following, the feature is on, and this app isn't frontmost (so it
     /// never intercepts spaces typed in the editor / settings windows).
     private func updateSpacePauseKey() {
-        let active = model.spacePauseEnabled
+        let active = model.handsFreeKeysEnabled
+            && model.spacePauseEnabled
             && model.scrollSessionActive
             && model.readingMode == .normal
             && !VoiceFollowController.shared.isListening
@@ -704,6 +736,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, 
         }
         if menuItem === cueModeItem {
             menuItem.state = (model.readingMode == .cue) ? .on : .off
+            return true
+        }
+        if menuItem === miniPrompterItem {
+            menuItem.state = model.miniPrompterEnabled ? .on : .off
             return true
         }
         if menuItem === speedUpItem || menuItem === speedDownItem {
