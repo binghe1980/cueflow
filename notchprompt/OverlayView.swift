@@ -20,9 +20,13 @@ enum NotchLayout {
                        voiceActive: Bool,
                        voiceHeight: Double,
                        cueActive: Bool = false,
-                       cueHeight: Double = 300) -> CGFloat {
+                       cueHeight: Double = 300,
+                       miniActive: Bool = false,
+                       miniFontSize: Double = 20) -> CGFloat {
         if voiceActive { return Swift.max(CGFloat(base), CGFloat(voiceHeight)) }
         if cueActive { return Swift.max(CGFloat(base), CGFloat(cueHeight)) }
+        // F8 mini: collapse to roughly one line (font + controls/padding room).
+        if miniActive { return Swift.max(96, CGFloat(miniFontSize) + 76) }
         return CGFloat(base)
     }
 }
@@ -138,6 +142,9 @@ struct OverlayView: View {
                 } else if model.readingMode == .cue {
                     CueCardView(model: model, fontSize: CGFloat(model.fontSize))
                         .overlay { GestureCaptureLayer(model: model) }
+                } else if model.miniPrompterEnabled {
+                    MiniPrompterView(model: model, fontSize: CGFloat(model.fontSize))
+                        .overlay { GestureCaptureLayer(model: model) }
                 } else if model.cueScript.hasStructure && !model.cueScript.hasSpoken {
                     CueEnterHintView()
                 } else {
@@ -183,7 +190,11 @@ struct OverlayView: View {
                                           voiceActive: vf.isListening,
                                           voiceHeight: model.voiceFollowNotchHeight,
                                           cueActive: model.readingMode == .cue,
-                                          cueHeight: model.cueNotchHeight))
+                                          cueHeight: model.cueNotchHeight,
+                                          miniActive: model.miniPrompterEnabled
+                                              && model.readingMode != .cue
+                                              && !vf.isListening,
+                                          miniFontSize: model.fontSize))
     }
 }
 

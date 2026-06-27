@@ -159,6 +159,11 @@ Tip: Use the menu bar icon to start/pause or reset the scroll.
     // F7 触控板手势翻页总开关（持久化，默认开）。关闭后横向手势与随讲纵向翻弹药停用；
     // 普通模式的纵向手动滚动是既有基础交互，始终保留。
     @Published var gestureControlEnabled: Bool = true
+    // F8 留海迷你提词（单行跑马灯当前句）。开启后普通模式留海缩成一行（持久化，默认关）。
+    @Published var miniPrompterEnabled: Bool = false
+    // 免提裸键总开关（持久化，默认关）。关闭时 App 绝不全局占用 空格/↑↓/1-9/←→ 等裸键，
+    // 不影响在其它 App 打字；仅演示时按需开启，配合翻页笔/单手控制。⌥⌘ 组合键不受此影响。
+    @Published var handsFreeKeysEnabled: Bool = false
     /// 0 means "auto" (prefer built-in display)
     @Published var selectedScreenID: CGDirectDisplayID = 0
     // Fraction of the viewport height to fade at top and bottom.
@@ -213,6 +218,8 @@ Tip: Use the menu bar icon to start/pause or reset the scroll.
         static let statsEnabled = "statsEnabled"
         static let showSessionSummary = "showSessionSummary"
         static let gestureControlEnabled = "gestureControlEnabled"
+        static let miniPrompterEnabled = "miniPrompterEnabled"
+        static let handsFreeKeysEnabled = "handsFreeKeysEnabled"
     }
 
     private init() {
@@ -667,6 +674,8 @@ Tip: Use the menu bar icon to start/pause or reset the scroll.
         statsEnabled = defaults.object(forKey: DefaultsKey.statsEnabled) as? Bool ?? statsEnabled
         showSessionSummary = defaults.object(forKey: DefaultsKey.showSessionSummary) as? Bool ?? showSessionSummary
         gestureControlEnabled = defaults.object(forKey: DefaultsKey.gestureControlEnabled) as? Bool ?? gestureControlEnabled
+        miniPrompterEnabled = defaults.object(forKey: DefaultsKey.miniPrompterEnabled) as? Bool ?? miniPrompterEnabled
+        handsFreeKeysEnabled = defaults.object(forKey: DefaultsKey.handsFreeKeysEnabled) as? Bool ?? handsFreeKeysEnabled
     }
 
     func saveToDefaults() {
@@ -706,6 +715,8 @@ Tip: Use the menu bar icon to start/pause or reset the scroll.
         defaults.set(statsEnabled, forKey: DefaultsKey.statsEnabled)
         defaults.set(showSessionSummary, forKey: DefaultsKey.showSessionSummary)
         defaults.set(gestureControlEnabled, forKey: DefaultsKey.gestureControlEnabled)
+        defaults.set(miniPrompterEnabled, forKey: DefaultsKey.miniPrompterEnabled)
+        defaults.set(handsFreeKeysEnabled, forKey: DefaultsKey.handsFreeKeysEnabled)
     }
 
     private func beginCountdown(seconds: Int) {

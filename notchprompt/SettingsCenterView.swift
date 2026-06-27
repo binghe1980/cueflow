@@ -35,15 +35,40 @@ enum SettingsCategory: String, CaseIterable, Identifiable {
 
     var symbol: String {
         switch self {
-        case .general:   return "gearshape"
+        case .general:   return "gearshape.fill"
         case .prompting: return "text.alignleft"
-        case .appearance: return "paintpalette"
+        case .appearance: return "paintpalette.fill"
         case .voice:     return "waveform"
-        case .privacy:   return "lock.shield"
+        case .privacy:   return "lock.shield.fill"
         case .shortcuts: return "command"
         }
     }
+
+    /// Tile color for the sidebar icon (System Settings style).
+    var tint: Color {
+        switch self {
+        case .general:   return .gray
+        case .prompting: return .blue
+        case .appearance: return .pink
+        case .voice:     return .orange
+        case .privacy:   return .green
+        case .shortcuts: return .indigo
+        }
+    }
 }
+
+/// Sidebar grouping (header localization key + the categories under it).
+private struct SettingsGroup: Identifiable {
+    let headerKey: LK
+    let items: [SettingsCategory]
+    var id: String { headerKey.rawValue }
+}
+
+private let settingsGroups: [SettingsGroup] = [
+    SettingsGroup(headerKey: .grpGeneral,   items: [.general, .appearance]),
+    SettingsGroup(headerKey: .grpPrompting, items: [.prompting, .voice]),
+    SettingsGroup(headerKey: .grpSystem,    items: [.privacy, .shortcuts]),
+]
 
 // MARK: - Root
 
@@ -57,12 +82,19 @@ struct SettingsCenterView: View {
         // titlebar separator line into a bare NSWindow, which showed as a stray
         // line that shifted on resize. A plain HStack has no such chrome.
         HStack(spacing: 0) {
-            List(SettingsCategory.allCases, selection: $selection) { category in
-                Label(lm.l(category.titleKey), systemImage: category.symbol)
-                    .tag(category)
+            List(selection: $selection) {
+                ForEach(settingsGroups) { group in
+                    Section(lm.l(group.headerKey)) {
+                        ForEach(group.items) { category in
+                            SidebarRow(category: category, title: lm.l(category.titleKey))
+                                .tag(category)
+                        }
+                    }
+                }
             }
             .listStyle(.sidebar)
-            .frame(width: 188)
+            .safeAreaInset(edge: .top) { Color.clear.frame(height: 6) }
+            .frame(width: 196)
 
             Divider()
 
@@ -86,6 +118,28 @@ struct SettingsCenterView: View {
         case .privacy:   PrivacySettingsView()
         case .shortcuts: ShortcutsSettingsView()
         }
+    }
+}
+
+/// A sidebar row: colored rounded-square icon tile + title (System Settings style).
+private struct SidebarRow: View {
+    let category: SettingsCategory
+    let title: String
+
+    var body: some View {
+        HStack(spacing: 9) {
+            ZStack {
+                RoundedRectangle(cornerRadius: 6, style: .continuous)
+                    .fill(category.tint)
+                Image(systemName: category.symbol)
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundStyle(.white)
+            }
+            .frame(width: 22, height: 22)
+            Text(title)
+            Spacer(minLength: 0)
+        }
+        .padding(.vertical, 2)
     }
 }
 
@@ -262,6 +316,11 @@ struct PromptingSettingsView: View {
                 Toggle(lm.l(.toggleGestureControl), isOn: $model.gestureControlEnabled)
                 Text(lm.l(.gestureHint)).font(.footnote).foregroundStyle(.secondary)
             }
+
+            SCCard(title: lm.l(.secMini)) {
+                Toggle(lm.l(.toggleMiniPrompter), isOn: $model.miniPrompterEnabled)
+                Text(lm.l(.miniHint)).font(.footnote).foregroundStyle(.secondary)
+            }
         }
     }
 
@@ -368,11 +427,18 @@ struct PrivacySettingsView: View {
 // MARK: - Shortcuts
 
 struct ShortcutsSettingsView: View {
+    @ObservedObject private var model = PrompterModel.shared
     @ObservedObject private var lm = LocalizationManager.shared
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             SCHeader(title: lm.l(.catShortcuts), subtitle: lm.l(.setSubtitle))
+
+            SCCard(title: lm.l(.secHandsFree)) {
+                Toggle(lm.l(.toggleHandsFree), isOn: $model.handsFreeKeysEnabled)
+                Text(lm.l(.handsFreeHint)).font(.footnote).foregroundStyle(.secondary)
+            }
+
             SCCard(title: lm.l(.secShortcuts)) {
                 row("⌥⌘P", lm.l(.scStartPause))
                 row("⌥⌘R", lm.l(.scResetScroll))

@@ -106,6 +106,8 @@ enum LK: String {
 
     // F6 设置中心 — 分类导航
     case catGeneral, catPrompting, catAppearance, catVoice, catPrivacy, catShortcuts
+    // 侧栏分组标题
+    case grpGeneral, grpPrompting, grpSystem
 
     // F6 动效
     case secMotion, fieldMotionStyle, motionStandard, motionBrisk, motionMinimal, motionReduceHint
@@ -126,6 +128,12 @@ enum LK: String {
 
     // F7 手势翻页
     case secGesture, toggleGestureControl, gestureHint
+
+    // F8 留海迷你提词
+    case menuMiniPrompter, secMini, toggleMiniPrompter, miniHint
+
+    // 免提裸键总开关
+    case secHandsFree, toggleHandsFree, handsFreeHint
 }
 
 @MainActor
@@ -413,6 +421,9 @@ extension LocalizationManager {
         .catVoice: [.zhHans: "语音", .en: "Voice"],
         .catPrivacy: [.zhHans: "隐私", .en: "Privacy"],
         .catShortcuts: [.zhHans: "快捷键", .en: "Shortcuts"],
+        .grpGeneral: [.zhHans: "常规", .en: "General"],
+        .grpPrompting: [.zhHans: "提词", .en: "Prompting"],
+        .grpSystem: [.zhHans: "系统", .en: "System"],
 
         // MARK: F6 动效
         .secMotion: [.zhHans: "动效", .en: "Motion"],
@@ -480,6 +491,23 @@ extension LocalizationManager {
         .gestureHint: [
             .zhHans: "鼠标悬在提词浮层上：普通模式横滑调速、纵滑滚动；随讲模式横滑跳段、纵滑翻看素材。",
             .en: "Hover the overlay: in normal mode swipe sideways to change speed, vertically to scroll; in cue mode swipe sideways to change point, vertically to browse materials."
+        ],
+
+        // MARK: F8 留海迷你提词
+        .menuMiniPrompter: [.zhHans: "迷你提词（单行）", .en: "Mini Prompter (single line)"],
+        .secMini: [.zhHans: "迷你提词", .en: "Mini prompter"],
+        .toggleMiniPrompter: [.zhHans: "留海单行迷你提词", .en: "Single-line mini prompter in the notch"],
+        .miniHint: [
+            .zhHans: "开启后留海缩成一行、只放大显示当前句，按开始后随速度自动逐句；长句横向滚动读完。语音/随讲模式下不生效。",
+            .en: "Collapses the notch to one line showing the current sentence, auto-advancing by speed after Start; long sentences pan horizontally. Inactive in voice / cue mode."
+        ],
+
+        // MARK: 免提裸键
+        .secHandsFree: [.zhHans: "免提快捷键（演示用）", .en: "Hands-free keys (presenting)"],
+        .toggleHandsFree: [.zhHans: "启用免提裸键：空格 / ↑↓ / 数字 / 方向键", .en: "Enable bare keys: Space / ↑↓ / numbers / arrows"],
+        .handsFreeHint: [
+            .zhHans: "默认关闭。开启后这些裸键会被全局占用以便用翻页笔/单手控制提词——此时在其它 App 里这些键会失效（无法正常打字）。仅在演示/录制时开启。⌥⌘ 组合键始终可用、不受影响。",
+            .en: "Off by default. When on, these bare keys are captured globally for clicker / one-hand control — which means they stop working for typing in other apps. Turn on only while presenting/recording. The ⌥⌘ chords always work and are unaffected."
         ],
     ]
 }
