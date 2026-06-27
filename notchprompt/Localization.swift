@@ -103,6 +103,26 @@ enum LK: String {
 
     // F5 空格暂停
     case toggleSpacePause, scSpacePause
+
+    // F6 设置中心 — 分类导航
+    case catGeneral, catPrompting, catAppearance, catVoice, catPrivacy, catShortcuts
+
+    // F6 动效
+    case secMotion, fieldMotionStyle, motionStandard, motionBrisk, motionMinimal, motionReduceHint
+
+    // F6 实时预览 / 显示模式可视卡
+    case previewTitle, previewSample, displayNotchDesc, displayFloatingDesc
+
+    // F6 计时器
+    case secTimer, fieldTimerMode, timerOff, timerCountUp, timerCountDown, timerRemaining
+    case fieldTimerTarget, timerReachedTarget, timerRemainNeedStopMode
+
+    // F6 排练统计
+    case menuStats, winStatsTitle, statsTitle, statsSubtitle
+    case statsThisSession, statsDuration, statsWords, statsAvgSpeed, statsCompletion, statsWordsPerMin
+    case statsTotals, statsTotalSessions, statsTotalTime, statsRecent, statsScript
+    case statsEmpty, statsClear, statsClearConfirmTitle, statsClearConfirmMsg, statsCancel
+    case toggleStatsEnabled, toggleShowSummary, summaryTitle, summaryDismiss
 }
 
 @MainActor
@@ -382,5 +402,73 @@ extension LocalizationManager {
         // MARK: F5 空格暂停
         .toggleSpacePause: [.zhHans: "用空格暂停 / 继续（播放自动滚动时）", .en: "Space to pause / resume (while auto-scroll plays)"],
         .scSpacePause: [.zhHans: "暂停 / 继续（自动滚动会话中）", .en: "Pause / resume (during a scroll session)"],
+
+        // MARK: F6 设置中心分类
+        .catGeneral: [.zhHans: "通用", .en: "General"],
+        .catPrompting: [.zhHans: "提词", .en: "Prompting"],
+        .catAppearance: [.zhHans: "外观", .en: "Appearance"],
+        .catVoice: [.zhHans: "语音", .en: "Voice"],
+        .catPrivacy: [.zhHans: "隐私", .en: "Privacy"],
+        .catShortcuts: [.zhHans: "快捷键", .en: "Shortcuts"],
+
+        // MARK: F6 动效
+        .secMotion: [.zhHans: "动效", .en: "Motion"],
+        .fieldMotionStyle: [.zhHans: "动画风格", .en: "Animation style"],
+        .motionStandard: [.zhHans: "标准", .en: "Standard"],
+        .motionBrisk: [.zhHans: "轻快", .en: "Brisk"],
+        .motionMinimal: [.zhHans: "极简（几乎无动画）", .en: "Minimal (almost none)"],
+        .motionReduceHint: [
+            .zhHans: "系统开启「减弱动态效果」时将自动使用极简动画。",
+            .en: "Minimal animations are used automatically when system Reduce Motion is on."
+        ],
+
+        // MARK: F6 预览 / 显示模式卡
+        .previewTitle: [.zhHans: "实时预览", .en: "Live preview"],
+        .previewSample: [
+            .zhHans: "这是一段示例提词文本，用来预览字号与窗口比例。",
+            .en: "Sample prompter text to preview font size and window proportions."
+        ],
+        .displayNotchDesc: [.zhHans: "贴合刘海，录屏友好", .en: "Hugs the notch, capture-friendly"],
+        .displayFloatingDesc: [.zhHans: "可自由拖动的独立窗口", .en: "Free-floating, draggable window"],
+
+        // MARK: F6 计时器
+        .secTimer: [.zhHans: "计时器", .en: "Timer"],
+        .fieldTimerMode: [.zhHans: "计时方式", .en: "Timer mode"],
+        .timerOff: [.zhHans: "关闭", .en: "Off"],
+        .timerCountUp: [.zhHans: "正计时（已用时）", .en: "Count up (elapsed)"],
+        .timerCountDown: [.zhHans: "倒计时（到目标）", .en: "Count down (to target)"],
+        .timerRemaining: [.zhHans: "预计剩余", .en: "Estimated remaining"],
+        .fieldTimerTarget: [.zhHans: "倒计时目标", .en: "Countdown target"],
+        .timerReachedTarget: [.zhHans: "时间到", .en: "Time's up"],
+        .timerRemainNeedStopMode: [
+            .zhHans: "「预计剩余」需配合「到底停止」滚动模式。",
+            .en: "“Estimated remaining” works with the “Stop at end” scroll mode."
+        ],
+
+        // MARK: F6 排练统计
+        .menuStats: [.zhHans: "排练统计…", .en: "Rehearsal Stats…"],
+        .winStatsTitle: [.zhHans: "随读 · 排练统计", .en: "Cueflow · Rehearsal Stats"],
+        .statsTitle: [.zhHans: "排练统计", .en: "Rehearsal Stats"],
+        .statsSubtitle: [.zhHans: "你的练习记录都保存在本机，不会上传。", .en: "Your practice records stay on this Mac and are never uploaded."],
+        .statsThisSession: [.zhHans: "最近一次", .en: "Latest session"],
+        .statsDuration: [.zhHans: "时长", .en: "Duration"],
+        .statsWords: [.zhHans: "字数", .en: "Words"],
+        .statsAvgSpeed: [.zhHans: "平均语速", .en: "Avg. pace"],
+        .statsCompletion: [.zhHans: "完成度", .en: "Completion"],
+        .statsWordsPerMin: [.zhHans: "字/分", .en: "wpm"],
+        .statsTotals: [.zhHans: "累计", .en: "Totals"],
+        .statsTotalSessions: [.zhHans: "练习次数", .en: "Sessions"],
+        .statsTotalTime: [.zhHans: "累计时长", .en: "Total time"],
+        .statsRecent: [.zhHans: "最近记录", .en: "Recent sessions"],
+        .statsScript: [.zhHans: "脚本", .en: "Script"],
+        .statsEmpty: [.zhHans: "还没有练习记录。开始一次提词，结束后就会出现在这里。", .en: "No records yet. Start prompting; sessions appear here when you finish."],
+        .statsClear: [.zhHans: "清空统计", .en: "Clear stats"],
+        .statsClearConfirmTitle: [.zhHans: "清空全部统计记录？", .en: "Clear all stats?"],
+        .statsClearConfirmMsg: [.zhHans: "此操作不可撤销。", .en: "This cannot be undone."],
+        .statsCancel: [.zhHans: "取消", .en: "Cancel"],
+        .toggleStatsEnabled: [.zhHans: "记录排练统计", .en: "Record rehearsal stats"],
+        .toggleShowSummary: [.zhHans: "结束后显示本次小结", .en: "Show session summary when finished"],
+        .summaryTitle: [.zhHans: "本次小结", .en: "Session summary"],
+        .summaryDismiss: [.zhHans: "好", .en: "OK"],
     ]
 }

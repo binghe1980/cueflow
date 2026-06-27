@@ -164,6 +164,12 @@ struct OverlayView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
                 .allowsHitTesting(false)
 
+            TimerBadge(model: model)
+                .padding(.trailing, 16)
+                .padding(.bottom, 12)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
+                .allowsHitTesting(false)
+
             if model.isCountingDown {
                 ZStack {
                     Color.black.opacity(0.92)
@@ -372,6 +378,12 @@ struct FloatingView: View {
 
                 ScriptFlashBanner(model: model)
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+                    .allowsHitTesting(false)
+
+                TimerBadge(model: model)
+                    .padding(.trailing, 16)
+                    .padding(.bottom, 12)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
                     .allowsHitTesting(false)
 
                 if model.isCountingDown {

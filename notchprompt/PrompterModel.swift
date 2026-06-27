@@ -52,6 +52,25 @@ final class PrompterModel: ObservableObject {
         case cue
     }
 
+    /// F6 动效风格。`standard` 为默认 spring；`brisk` 更短更轻；`minimal` 几乎无动画
+    /// （无障碍/性能优先）。系统「减弱动态效果」开启时由 Motion 层强制降级为 minimal。
+    enum MotionStyle: String, CaseIterable, Identifiable {
+        case standard
+        case brisk
+        case minimal
+        var id: String { rawValue }
+    }
+
+    /// F6 计时器形态。`off` 不显示；`countUp` 正计时（已用时）；`countDown` 倒计时到目标；
+    /// `remaining` 按剩余字数 × 当前语速估算预计剩余（仅 stopAtEnd 滚动有意义）。
+    enum TimerMode: String, CaseIterable, Identifiable {
+        case off
+        case countUp
+        case countDown
+        case remaining
+        var id: String { rawValue }
+    }
+
     static let shared = PrompterModel()
 
     @Published var script: String = """
@@ -128,6 +147,15 @@ Tip: Use the menu bar icon to start/pause or reset the scroll.
     // Deprecated user setting: keep as a fixed constant unless changed explicitly in code.
     @Published var backgroundOpacity: Double = 1.0
     @Published var scrollMode: ScrollMode = .infinite
+    // F6 动效风格（持久化）。
+    @Published var motionStyle: MotionStyle = .standard
+    // F6 计时器形态与倒计时目标秒数（持久化）。
+    @Published var timerMode: TimerMode = .off
+    @Published var timerTargetSeconds: Int = 60
+    // F6 排练统计开关；关闭后不记录会话（持久化，默认开）。
+    @Published var statsEnabled: Bool = true
+    // F6 每次提词结束弹出会话小结卡（持久化，默认开）。
+    @Published var showSessionSummary: Bool = true
     /// 0 means "auto" (prefer built-in display)
     @Published var selectedScreenID: CGDirectDisplayID = 0
     // Fraction of the viewport height to fade at top and bottom.
@@ -176,6 +204,11 @@ Tip: Use the menu bar icon to start/pause or reset the scroll.
         static let cueNotchHeight = "cueNotchHeight"
         static let showCueTotalTimer = "showCueTotalTimer"
         static let spacePauseEnabled = "spacePauseEnabled"
+        static let motionStyle = "motionStyle"
+        static let timerMode = "timerMode"
+        static let timerTargetSeconds = "timerTargetSeconds"
+        static let statsEnabled = "statsEnabled"
+        static let showSessionSummary = "showSessionSummary"
     }
 
     private init() {
@@ -476,6 +509,34 @@ Tip: Use the menu bar icon to start/pause or reset the scroll.
         setSpeed(preset)
     }
 
+    /// F6 字数口径：中文/日文/韩文等表意字符按「字」计，连续的拉丁/数字串按「词」计。
+    /// 适合中英混排的提词稿，用于统计与「预计剩余」估算。
+    static func readingUnitCount(in text: String) -> Int {
+        var count = 0
+        var inLatinRun = false
+        for scalar in text.unicodeScalars {
+            let v = scalar.value
+            // CJK 统一表意文字 + 扩展A + 假名 + 谚文等常见东亚区段，逐字计。
+            let isCJK = (0x3040...0x30FF).contains(v)   // 日文假名
+                || (0x3400...0x4DBF).contains(v)        // CJK 扩展A
+                || (0x4E00...0x9FFF).contains(v)        // CJK 基本
+                || (0xAC00...0xD7AF).contains(v)        // 谚文音节
+                || (0xF900...0xFAFF).contains(v)        // CJK 兼容
+            if isCJK {
+                count += 1
+                inLatinRun = false
+            } else if CharacterSet.alphanumerics.contains(scalar) {
+                if !inLatinRun { count += 1; inLatinRun = true }
+            } else {
+                inLatinRun = false
+            }
+        }
+        return count
+    }
+
+    /// 当前提词稿的字数（按上面的中英口径）。
+    var scriptUnitCount: Int { Self.readingUnitCount(in: script) }
+
     var estimatedReadDuration: TimeInterval {
         let trimmed = script.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return 0 }
@@ -564,6 +625,15 @@ Tip: Use the menu bar icon to start/pause or reset the scroll.
         cueNotchHeight = clamp(defaults.object(forKey: DefaultsKey.cueNotchHeight) as? Double ?? cueNotchHeight, lower: 180, upper: 600)
         showCueTotalTimer = defaults.object(forKey: DefaultsKey.showCueTotalTimer) as? Bool ?? showCueTotalTimer
         spacePauseEnabled = defaults.object(forKey: DefaultsKey.spacePauseEnabled) as? Bool ?? spacePauseEnabled
+        if let raw = defaults.string(forKey: DefaultsKey.motionStyle), let v = MotionStyle(rawValue: raw) {
+            motionStyle = v
+        }
+        if let raw = defaults.string(forKey: DefaultsKey.timerMode), let v = TimerMode(rawValue: raw) {
+            timerMode = v
+        }
+        timerTargetSeconds = Int(clamp(Double(defaults.object(forKey: DefaultsKey.timerTargetSeconds) as? Int ?? timerTargetSeconds), lower: 5, upper: 3600))
+        statsEnabled = defaults.object(forKey: DefaultsKey.statsEnabled) as? Bool ?? statsEnabled
+        showSessionSummary = defaults.object(forKey: DefaultsKey.showSessionSummary) as? Bool ?? showSessionSummary
     }
 
     func saveToDefaults() {
@@ -597,6 +667,11 @@ Tip: Use the menu bar icon to start/pause or reset the scroll.
         defaults.set(cueNotchHeight, forKey: DefaultsKey.cueNotchHeight)
         defaults.set(showCueTotalTimer, forKey: DefaultsKey.showCueTotalTimer)
         defaults.set(spacePauseEnabled, forKey: DefaultsKey.spacePauseEnabled)
+        defaults.set(motionStyle.rawValue, forKey: DefaultsKey.motionStyle)
+        defaults.set(timerMode.rawValue, forKey: DefaultsKey.timerMode)
+        defaults.set(timerTargetSeconds, forKey: DefaultsKey.timerTargetSeconds)
+        defaults.set(statsEnabled, forKey: DefaultsKey.statsEnabled)
+        defaults.set(showSessionSummary, forKey: DefaultsKey.showSessionSummary)
     }
 
     private func beginCountdown(seconds: Int) {
