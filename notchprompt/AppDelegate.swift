@@ -33,9 +33,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, 
     private var settingsWindowController: SettingsWindowController?
     private var scriptEditorWindowController: ScriptEditorWindowController?
     private var voiceFollowWindowController: VoiceFollowWindowController?
+    private var statsWindowController: StatsWindowController?
+    private var summaryWindowController: SessionSummaryWindowController?
     private var cancellables: Set<AnyCancellable> = []
     private var languageObserver: NSObjectProtocol?
     private var editorObserver: NSObjectProtocol?
+    private var statsRecordObserver: NSObjectProtocol?
 
     private var startPauseItem: NSMenuItem?
     private var showOverlayItem: NSMenuItem?
@@ -89,14 +92,30 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, 
         ) { [weak self] _ in
             MainActor.assumeIsolated { self?.openScriptEditorWindow() }
         }
+
+        // F6: after a session is recorded, optionally show the summary card.
+        statsRecordObserver = NotificationCenter.default.addObserver(
+            forName: StatsManager.didRecordSession, object: nil, queue: .main
+        ) { [weak self] note in
+            MainActor.assumeIsolated {
+                guard let self, let session = note.object as? RehearsalSession else { return }
+                guard self.model.statsEnabled, self.model.showSessionSummary else { return }
+                if self.summaryWindowController == nil {
+                    self.summaryWindowController = SessionSummaryWindowController()
+                }
+                self.summaryWindowController?.present(session)
+            }
+        }
     }
 
     func applicationWillTerminate(_ notification: Notification) {
+        StatsManager.shared.finalize(reachedEnd: false)   // archive an in-progress session
         model.saveToDefaults()
         hotkeyManager.unregisterAll()
         cancellables.removeAll()
         if let languageObserver { NotificationCenter.default.removeObserver(languageObserver) }
         if let editorObserver { NotificationCenter.default.removeObserver(editorObserver) }
+        if let statsRecordObserver { NotificationCenter.default.removeObserver(statsRecordObserver) }
     }
 
     // MARK: - Window configuration (notch vs floating, mutually exclusive)
@@ -175,6 +194,40 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, 
             .receive(on: RunLoop.main)
             .sink { [weak self] running in
                 self?.hotkeyManager.setSpeedNavigationActive(running)
+            }
+            .store(in: &cancellables)
+
+        // F6 计时器：在自动滚动播放或语音跟随时计时，暂停/停止则暂停计时。
+        Publishers.CombineLatest(model.$isRunning, VoiceFollowController.shared.$isListening)
+            .map { $0 || $1 }
+            .removeDuplicates()
+            .receive(on: RunLoop.main)
+            .sink { active in
+                if active {
+                    TimerEngine.shared.resume()
+                    StatsManager.shared.markActivity()   // snapshot the session on first activity
+                } else {
+                    TimerEngine.shared.pause()
+                }
+            }
+            .store(in: &cancellables)
+
+        // 重置滚动时：先归档本段统计，再归零计时器（开始新的一段）。
+        model.$resetToken
+            .dropFirst()
+            .receive(on: RunLoop.main)
+            .sink { _ in
+                StatsManager.shared.finalize(reachedEnd: false)
+                TimerEngine.shared.reset()
+            }
+            .store(in: &cancellables)
+
+        // 到底停止：算作完整完成一段，立即归档。
+        model.$didReachEndInStopMode
+            .removeDuplicates()
+            .receive(on: RunLoop.main)
+            .sink { reached in
+                if reached { StatsManager.shared.finalize(reachedEnd: true) }
             }
             .store(in: &cancellables)
 
@@ -261,7 +314,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, 
             model.$activeScriptID.map { _ in () }.eraseToAnyPublisher(),
             model.$cueNotchHeight.map { _ in () }.eraseToAnyPublisher(),
             model.$showCueTotalTimer.map { _ in () }.eraseToAnyPublisher(),
-            model.$spacePauseEnabled.map { _ in () }.eraseToAnyPublisher()
+            model.$spacePauseEnabled.map { _ in () }.eraseToAnyPublisher(),
+            model.$motionStyle.map { _ in () }.eraseToAnyPublisher(),
+            model.$timerMode.map { _ in () }.eraseToAnyPublisher(),
+            model.$timerTargetSeconds.map { _ in () }.eraseToAnyPublisher(),
+            model.$statsEnabled.map { _ in () }.eraseToAnyPublisher(),
+            model.$showSessionSummary.map { _ in () }.eraseToAnyPublisher()
         ]
         Publishers.MergeMany(saveTriggers)
             .debounce(for: .milliseconds(250), scheduler: RunLoop.main)
@@ -367,6 +425,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, 
         menu.addItem(voiceFollow)
 
         menu.addItem(.separator())
+
+        let stats = NSMenuItem(title: L(.menuStats), action: #selector(openStatsWindow), keyEquivalent: "")
+        stats.target = self
+        menu.addItem(stats)
 
         let open = NSMenuItem(title: L(.menuSettings), action: #selector(openMainWindow), keyEquivalent: "")
         open.target = self
@@ -490,6 +552,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, 
                 settingsWindowController = SettingsWindowController()
             }
             settingsWindowController?.show()
+        }
+    }
+
+    @objc private func openStatsWindow() {
+        Task { @MainActor in
+            if statsWindowController == nil {
+                statsWindowController = StatsWindowController()
+            }
+            statsWindowController?.show()
         }
     }
 

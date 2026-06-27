@@ -13,7 +13,7 @@ struct notchpromptApp: App {
 
     var body: some Scene {
         Settings {
-            ContentView()
+            SettingsCenterView()
         }
     }
 }
