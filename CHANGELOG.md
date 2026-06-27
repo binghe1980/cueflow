@@ -3,6 +3,43 @@
 All notable changes to CueFlow (随读) are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## v1.1.0 — 2026-06-27
+
+Experience upgrade: a visual settings center, timing & rehearsal stats, trackpad
+gestures, and a single-line mini prompter in the notch.
+
+### Added
+
+- **Visual settings center** — a categorized sidebar with grouped cards, a live
+  appearance preview, and selectable motion styles (Standard / Brisk / Minimal,
+  honoring the system "Reduce Motion" setting).
+- **Timer** — an in-overlay timer with count-up, count-down (to a target), and
+  estimated-remaining modes. The target alert is visual + haptic only (no sound),
+  so it is safe while recording.
+- **Rehearsal stats** — a menu-bar "Rehearsal Stats" window recording each
+  session's duration, word count, average pace, and completion. Stored locally;
+  never uploaded. A per-session summary card shows after finishing (toggleable).
+- **Trackpad gesture paging** — hover the overlay and use two fingers: normal
+  mode swipes change speed (horizontal) and scroll (vertical); cue mode swipes
+  change outline point (horizontal) and browse materials (vertical). Toggleable.
+- **Mini prompter in the notch** — collapse the notch to one line showing the
+  current sentence, auto-advancing by speed, with long sentences panning
+  horizontally.
+
+### Fixed
+
+- The app no longer captures bare keys (Space / arrows / number keys) globally by
+  default, which previously could block typing in other apps while CueFlow was
+  open. These presenting-oriented keys now live behind a **"hands-free keys"**
+  toggle (off by default) in Settings → Shortcuts. The `⌥⌘` chords are unaffected.
+- The timer "time's up" indicator is now translucent so it no longer obscures the
+  scrolling text behind it.
+
+### Notes
+
+- Signed with an Apple Developer ID and notarized by Apple. Existing v1.0.1 users
+  receive this update automatically via Sparkle.
+
 ## v1.0.1 — 2026-06-25
 
 ✨ **Adds in-app auto-update.**

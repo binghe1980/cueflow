@@ -7,12 +7,12 @@
 **A Mac teleprompter that hugs the notch — and *listens* as you read, scrolling to follow you**
 
 [![License](https://img.shields.io/badge/license-MIT-22c55e.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-v1.0.1-3b82f6.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-v1.1.0-3b82f6.svg)](CHANGELOG.md)
 [![Platform](https://img.shields.io/badge/macOS-14%2B-111827.svg?logo=apple&logoColor=white)](#requirements)
 [![Chip](https://img.shields.io/badge/Apple%20Silicon%20%26%20Intel-supported-f59e0b.svg)](#requirements)
 [![Website](https://img.shields.io/badge/Website-cueflow.flowlab.im-16a34a.svg)](https://cueflow.flowlab.im/)
 
-**🌐 Official site · [cueflow.flowlab.im](https://cueflow.flowlab.im/)** &nbsp;|&nbsp; [简体中文](README.md) &nbsp;·&nbsp; **🌏 English**
+**Official site · [cueflow.flowlab.im](https://cueflow.flowlab.im/)** &nbsp;|&nbsp; [简体中文](README.md) &nbsp;·&nbsp; **English**
 
 </div>
 
@@ -20,20 +20,31 @@
 
 > CueFlow (Chinese name **随读**, "read-along") is a menu-bar macOS teleprompter. It places the prompt right next to your camera/notch so you can **look at the lens** while reading — and it can use on-device speech recognition to **scroll exactly to where you are reading**, instead of guessing a constant speed.
 
-## ✨ Features
+## Features
 
-- **🎯 Notch-adjacent prompting** — the overlay sits near the camera, so your eyes barely leave the lens.
+### Prompting & reading
+
+- **Notch-adjacent prompting** — the overlay sits near the camera, so your eyes barely leave the lens.
 - **Three reading modes**
   - **Auto-scroll** — constant speed with adjustable speed / font size / width / height / countdown.
   - **Voice-follow** — on-device speech recognition scrolls to where you are reading; supports Chinese, English, and mixed zh+en.
   - **Cue mode (outline cards)** — for speaking off-script: attach data, examples, quotes, and reminders to each outline point and hop between them with hotkeys.
-- **📚 Script library** — manage multiple scripts, import/export plain text, switch in one tap.
-- **🕶️ Screen-share privacy** — hide the prompter from your audience while recording or sharing your screen (best-effort, app-dependent).
-- **🪟 Draggable floating window** — place and size the prompt wherever you like.
-- **⌨️ Global hotkeys** — start/pause, change speed, and jump without switching windows.
-- **🌐 Bilingual UI (中/EN)**, lives quietly in the menu bar.
+- **Mini prompter in the notch** (v1.1) — collapse the notch to a single line that shows the **current sentence**, auto-advancing by speed, with long sentences panning horizontally. A quick glance is enough — far less "reading off a prompter".
 
-## 🖼️ Screenshots
+### Control & efficiency
+
+- **Trackpad gestures** (v1.1) — hover the overlay and use two fingers: in normal mode swipe sideways to change speed, vertically to scroll; in cue mode swipe sideways to change outline point, vertically to browse materials.
+- **Timer & rehearsal stats** (v1.1) — a built-in timer (count up / count down / estimated remaining) plus a menu-bar "Rehearsal Stats" view that records each session's duration, word count, average pace, and completion — all stored locally, never uploaded.
+- **Global hotkeys** — start/pause, change speed, and jump without switching windows.
+
+### Interface & privacy
+
+- **Visual settings center** (v1.1) — a categorized sidebar with grouped cards, a live appearance preview, and selectable motion styles.
+- **Screen-share privacy** — hide the prompter from your audience while recording or sharing your screen (best-effort, app-dependent).
+- **Draggable floating window** — place and size the prompt wherever you like.
+- **Bilingual UI (中/EN)**, lives quietly in the menu bar.
+
+## Screenshots
 
 > Screenshots coming soon — try it out and share your setup in an Issue.
 
@@ -42,7 +53,7 @@
 ![Voice-follow demo](assets/voice-follow.gif)
 -->
 
-## 💻 Requirements
+## Requirements
 
 - **macOS 14.0 (Sonoma) or later**
 - Apple Silicon or Intel Mac
@@ -50,21 +61,23 @@
   - "Chinese / English" mode uses the built-in macOS speech recognizer (works on both Apple Silicon and Intel);
   - "Mixed zh+en (WhisperKit)" runs fully on-device and is **recommended on Apple Silicon** for best speed and accuracy.
 
-## 📥 Download & Install
+## Download & Install
 
-1. Open the [Releases page](https://github.com/binghe1980/cueflow/releases) and download the latest `CueFlow-v1.0.1-macos.dmg`.
+1. Open the [Releases page](https://github.com/binghe1980/cueflow/releases) and download the latest `CueFlow-v1.1.0-macos.dmg`.
 2. Open the DMG and drag **CueFlow** into your **Applications** folder.
 3. Launch CueFlow from Launchpad/Applications — its icon appears in the menu bar.
 
-> 📦 The download is ~135 MB because the offline speech model is bundled, so voice-follow works **without an internet connection**.
+> The download is ~135 MB because the offline speech model is bundled, so voice-follow works **without an internet connection**.
+>
+> Released builds support **in-app auto-update**: when a new version is available, CueFlow offers to upgrade in one click.
 
-### ✅ First launch
+### First launch
 
 CueFlow is **signed with an Apple Developer ID** and **notarized by Apple**, so it **opens with a normal double-click** — no "unidentified developer" or "damaged" prompts.
 
-> Want to confirm the download is intact? Compare the SHA-256 in "Verify the file" below.
+> Want to confirm the download is intact? Compare the SHA-256 listed on each Release page.
 
-## ⌨️ Keyboard Shortcuts
+## Keyboard Shortcuts
 
 | Shortcut | Action |
 | --- | --- |
@@ -79,19 +92,21 @@ CueFlow is **signed with an Apple Developer ID** and **notarized by Apple**, so 
 | `⌥⌘L` | Cue mode: outline overview / return |
 | `⌥⌘]` / `⌥⌘[` | Switch to next / previous script |
 
-> In cue mode, press number keys `1–9` to jump straight to an outline point.
-> If a shortcut is already taken by another app, the menu bar will warn you.
+> The `⌥⌘` chords above always work and never interfere with typing in other apps.
+>
+> Bare-key controls (Space, arrows, number keys `1–9` for pause / speed / jumping) are part of the presenting-oriented **hands-free keys**, which are **off by default**. Enable them in **Settings → Shortcuts** when needed. Once on, those keys are captured globally, so use them only while recording / presenting.
 
-## 🔒 Privacy
+## Privacy
 
 CueFlow keeps your reading on your own machine as much as possible:
 
 - **WhisperKit mixed zh+en mode is 100% on-device offline** — audio never leaves your Mac.
 - **Chinese / English mode** prefers the **on-device** macOS recognizer; if your Mac lacks on-device recognition for the selected language, macOS may **fall back to Apple's speech servers** (the UI shows "cloud" in that case), governed by **Apple's speech & privacy policy**.
+- **Rehearsal stats** and other usage data are stored locally and never uploaded.
 - **CueFlow itself never uploads, stores, or forwards your audio, and contains no third-party analytics, tracking, or ad SDKs.**
-- The app's network entitlement is used only to download the speech model from Hugging Face on demand when no bundled model is present (release builds already include the model, so this normally isn't needed).
+- The app's network entitlement is used only to download the speech model from Hugging Face on demand when no bundled model is present (release builds already include the model, so this normally isn't needed), and to check for software updates.
 
-## 🛠️ Build from Source
+## Build from Source
 
 ```bash
 git clone https://github.com/binghe1980/cueflow.git
@@ -107,27 +122,27 @@ open notchprompt.xcodeproj
 Build a local DMG from the command line (ad-hoc signed, for your own testing):
 
 ```bash
-./scripts/build_release_zip.sh v1.0.1
-# Output: dist/CueFlow-v1.0.1-macos.dmg
+./scripts/build_release_zip.sh v1.1.0
+# Output: dist/CueFlow-v1.1.0-macos.dmg
 ```
 
 The official release is built with Developer ID signing + Apple notarization (requires a certificate and notary credentials):
 
 ```bash
-./scripts/sign_notarize_release.sh v1.0.1
+./scripts/sign_notarize_release.sh v1.1.0
 ```
 
-## ✅ Verify the file (optional)
+## Verify the file (optional)
 
 After downloading, check the SHA-256 to confirm the file is intact and untampered:
 
 ```bash
-shasum -a 256 ~/Downloads/CueFlow-v1.0.1-macos.dmg
+shasum -a 256 ~/Downloads/CueFlow-v1.1.0-macos.dmg
 ```
 
 > Each Release lists the official SHA-256 — if it matches, you're good to install.
 
-## 🙏 Credits & License
+## Credits & License
 
 CueFlow is built on top of these open-source projects — thank you:
 
@@ -144,5 +159,5 @@ This project is released under the **MIT License** — see [LICENSE](LICENSE). Y
 ---
 
 <div align="center">
-<sub>CueFlow · 随读 — v1.0.1 · Made with ❤️ for creators</sub>
+<sub>CueFlow · 随读 — v1.1.0 · Built for creators</sub>
 </div>
